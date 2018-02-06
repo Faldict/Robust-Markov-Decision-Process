@@ -83,10 +83,12 @@ def simulate():
             # s_t+1 = argmin_s {r(s) + \lambda max_a Q(s, a) + \gamma c(s, beta)}
             tmp = np.zeros(NUM_BUCKETS[2])
             for i in range(NUM_BUCKETS[2]):
-                tmp[i] = reward_beta[i] + LBD * np.amax(q_table[i]) + GAMMA * (i - beta) * (i - beta)
+                tmp[i] = reward_beta[i] + LBD * np.amax(q_table[(state[0], state[1], i, state[3])]) + GAMMA * (i - beta) * (i - beta)
 
             # update s_t+1 and reward
+            state = list(state)
             state[2] = np.argmin(tmp)
+            state = tuple(state)
             reward = tmp[state[2]]
 
 
@@ -99,22 +101,11 @@ def simulate():
 
             # Print data
             if (DEBUG_MODE):
-                print("Episode: %d | Time: %d | Action: %d | State: %s | Reward: %f | Streaks: %d" % (
-                    episode, t, action, str(state), reward, num_streaks))
-                # print("\nEpisode = %d" % episode)
-                # print("t = %d" % t)
-                # print("Action: %d" % action)
-                # print("State: %s" % str(state))
-                # print("Reward: %f" % reward)
-                # print("Best Q: %f" % best_q)
-                # print("Explore rate: %f" % explore_rate)
-                # print("Learning rate: %f" % learning_rate)
-                # print("Streaks: %d" % num_streaks)
-
-                # print("")
+                print("Episode: %d | Time: %d | Action: %d | State: %s | Reward: %f | Beta: %d | Streaks: %d" % (
+                    episode, t, action, str(state), reward, beta, num_streaks))
 
             if done:
-               print("Episode %d finished after %f time steps" % (episode, t))
+               print("Episode %d finished after %d time steps" % (episode, t))
                if (t >= SOLVED_T):
                    num_streaks += 1
                else:
